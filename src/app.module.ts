@@ -13,11 +13,11 @@ import * as Joi from 'joi';
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'prod').required(),
-        host: Joi.string().required(),
-        port: Joi.string().required(),
-        username: Joi.string().required(),
-        password: Joi.string().required(),
-        database: Joi.string().required(),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
