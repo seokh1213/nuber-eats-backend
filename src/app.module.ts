@@ -29,7 +29,7 @@ import * as Joi from 'joi';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
-      logging: true,
+      logging: process.env.NODE_ENV !== 'prod',
       entities: [Restaurant],
     }),
     GraphQLModule.forRoot({
