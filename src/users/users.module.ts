@@ -8,5 +8,6 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   providers: [UsersService, UsersResolver],
+  exports: [UsersService],
 })
 export class UsersModule {}
