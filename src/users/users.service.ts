@@ -1,3 +1,4 @@
+import { MailService } from './../mail/mail.service';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
 import { UserProfileOutput } from './dtos/user-profile.dto';
 import { Verification } from './entities/verification.entity';
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async createAccount({
@@ -36,7 +38,10 @@ export class UsersService {
       const user = await this.users.save(
         this.users.create({ email, role, password }),
       );
-      await this.verifications.save(this.verifications.create({ user }));
+      const verification = await this.verifications.save(
+        this.verifications.create({ user }),
+      );
+      this.mailService.sendVerificationEmail(user.email, verification.code);
       return { ok: true };
     } catch (e) {
       //make error
@@ -91,12 +96,16 @@ export class UsersService {
     userId: number,
     { email, password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
+    console.log(userId);
     const user = await this.users.findOne(userId);
 
     if (email) {
       user.email = email;
       user.verified = false;
-      await this.verifications.save(this.verifications.create({ user }));
+      const verification = await this.verifications.save(
+        this.verifications.create({ user }),
+      );
+      this.mailService.sendVerificationEmail(user.email, verification.code);
     }
 
     if (password) {
@@ -122,6 +131,7 @@ export class UsersService {
       if (verification) {
         verification.user.verified = true;
         this.users.save(verification.user);
+        this.verifications.delete(verification.id);
         return { ok: true };
       }
 
