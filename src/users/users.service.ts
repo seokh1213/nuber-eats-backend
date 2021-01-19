@@ -45,7 +45,6 @@ export class UsersService {
       return { ok: true };
     } catch (e) {
       //make error
-      console.log(e);
       return { ok: false, error: "Couldn't create account" };
     }
   }
@@ -79,10 +78,7 @@ export class UsersService {
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const user = await this.users.findOne({ id });
-      if (!user) {
-        throw Error();
-      }
+      const user = await this.users.findOneOrFail({ id });
       return {
         ok: true,
         user,
@@ -96,28 +92,25 @@ export class UsersService {
     userId: number,
     { email, password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
-    console.log(userId);
-    const user = await this.users.findOne(userId);
-
-    if (email) {
-      user.email = email;
-      user.verified = false;
-      const verification = await this.verifications.save(
-        this.verifications.create({ user }),
-      );
-      this.mailService.sendVerificationEmail(user.email, verification.code);
-    }
-
-    if (password) {
-      user.password = password;
-    }
-
     try {
+      const user = await this.users.findOne(userId);
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
+        this.mailService.sendVerificationEmail(user.email, verification.code);
+      }
+
+      if (password) {
+        user.password = password;
+      }
+
       await this.users.save(user);
       return { ok: true };
     } catch (error) {
-      console.log(error);
-      return { ok: false, error };
+      return { ok: false, error: 'Could not update profile.' };
     }
   }
 
@@ -135,10 +128,9 @@ export class UsersService {
         return { ok: true };
       }
 
-      throw Error();
+      return { ok: false, error: 'Verification not found.' };
     } catch (error) {
-      console.log(error);
-      return { error, ok: false };
+      return { error: 'Could not verify email.', ok: false };
     }
   }
 }
