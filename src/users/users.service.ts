@@ -95,8 +95,15 @@ export class UsersService {
     try {
       const user = await this.users.findOne(userId);
       if (email) {
+        if (await this.users.findOne({ email })) {
+          return {
+            ok: false,
+            error: 'Could not update profile because there is same email.',
+          };
+        }
         user.email = email;
         user.verified = false;
+        this.verifications.delete({ user: { id: user.id } });
         const verification = await this.verifications.save(
           this.verifications.create({ user }),
         );
