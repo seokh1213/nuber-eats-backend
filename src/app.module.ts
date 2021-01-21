@@ -1,3 +1,6 @@
+import { RestaurantsModule } from './restaurants/restaurants.module';
+import { Category } from './restaurants/entities/category.entity';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { Verification } from './users/entities/verification.entity';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { User } from './users/entities/user.entity';
@@ -44,7 +47,7 @@ import * as Joi from 'joi';
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [User, Verification],
+      entities: [User, Verification, Restaurant, Category],
     }),
     GraphQLModule.forRoot({
       //autoSchemaFile: join(process.cwd(), 'src/schema.gql') // file,
@@ -58,6 +61,7 @@ import * as Joi from 'joi';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     UsersModule,
+    RestaurantsModule,
   ],
   controllers: [],
   providers: [],

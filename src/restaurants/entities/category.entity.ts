@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { IsBoolean, IsOptional, IsString, Length } from 'class-validator';
 
-@InputType({ isAbstract: true })
+@InputType('CategoryInputType', { isAbstract: true })
 @ObjectType() // Graphql
 @Entity() // Typeorm
 export class Category extends CoreEntity {
