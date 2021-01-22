@@ -7,6 +7,8 @@ import {
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Restaurant } from './entities/restaurant.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver((of) => Restaurant)
 export class RestaurantResolver {

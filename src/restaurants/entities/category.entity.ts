@@ -15,15 +15,20 @@ import { IsBoolean, IsOptional, IsString, Length } from 'class-validator';
 @Entity() // Typeorm
 export class Category extends CoreEntity {
   @Field((type) => String)
-  @Column()
+  @Column({ unique: true })
   @IsString()
   @Length(5)
   name: string;
 
-  @Field((type) => String)
-  @Column()
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
   @IsString()
-  address: string;
+  coverImg: string;
+
+  @Field((type) => String)
+  @Column({ unique: true })
+  @IsString()
+  slug: string;
 
   @OneToMany((type) => Restaurant, (restaurant) => restaurant.category)
   @Field((type) => [Restaurant])
