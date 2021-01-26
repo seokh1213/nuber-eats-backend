@@ -227,10 +227,9 @@ export class RestaurantService {
       if (owner.id !== restaurant.ownerId) {
         return { ok: false, error: 'This is not yours.' };
       }
-      const dish = this.dishes.save(
+      const dish = await this.dishes.save(
         this.dishes.create({ ...createDishInput, restaurant }),
       );
-      console.log(dish);
       return { ok: true };
     } catch (error) {
       console.log(error);

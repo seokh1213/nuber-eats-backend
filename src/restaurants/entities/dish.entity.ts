@@ -6,7 +6,7 @@ import { IsNumber, IsString, length, Length } from 'class-validator';
 
 @InputType('DishChoiceInputType', { isAbstract: true })
 @ObjectType()
-class DishChoice {
+export class DishChoice {
   @Field((type) => String)
   name: string;
   @Field((type) => Int, { nullable: true })
@@ -15,7 +15,7 @@ class DishChoice {
 
 @InputType('DishOptionInputType', { isAbstract: true })
 @ObjectType()
-class DishOption {
+export class DishOption {
   @Field((type) => String)
   name: string;
 
@@ -33,7 +33,6 @@ export class Dish extends CoreEntity {
   @Field((type) => String)
   @Column({ unique: true })
   @IsString()
-  @Length(5)
   name: string;
 
   @Field((type) => Int)
