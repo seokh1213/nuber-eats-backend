@@ -1,3 +1,4 @@
+import { Dish } from './dish.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from './category.entity';
 import { CoreEntity } from './../../common/entities/core.entity';
@@ -6,6 +7,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
@@ -46,4 +48,8 @@ export class Restaurant extends CoreEntity {
 
   @RelationId((restaurant: Restaurant) => restaurant.owner)
   ownerId: number;
+
+  @Field((type) => [Dish])
+  @OneToMany((type) => Dish, (dish) => dish.restaurant)
+  menu: Dish[];
 }
