@@ -1,3 +1,4 @@
+import { Payment } from './../../payments/entities/payment.enity';
 import { Order } from './../../orders/entities/order.entity';
 import { Restaurant } from './../../restaurants/entities/restaurant.entity';
 import {
@@ -55,6 +56,9 @@ export class User extends CoreEntity {
   @OneToMany((type) => Order, (order) => order.driver)
   @Field((type) => [Order])
   rides: Order[];
+
+  @OneToMany((type) => Payment, (payment) => payment.user)
+  payments: Payment[];
 
   @BeforeInsert()
   @BeforeUpdate()
