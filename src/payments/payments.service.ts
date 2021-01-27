@@ -9,6 +9,8 @@ import { Payment } from './entities/payment.enity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 
 @Injectable()
 export class PaymentService {
@@ -31,9 +33,16 @@ export class PaymentService {
       if (restaurant.ownerId !== owner.id) {
         return { ok: false, error: 'This restaurant is not yours.' };
       }
+
+      restaurant.isPromoted = true;
+      const date = new Date();
+      date.setDate(date.getDate() + 7);
+      restaurant.promotedUntil = date;
+
       await this.payments.save(
         this.payments.create({ transactionId, user: owner, restaurant }),
       );
+      await this.restaurants.save(restaurant);
       return { ok: true };
     } catch {
       return { ok: false, error: 'Could not create a payment.' };

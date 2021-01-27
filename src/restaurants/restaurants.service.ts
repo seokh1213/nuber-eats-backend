@@ -27,8 +27,9 @@ import {
 import { Restaurant } from './entities/restaurant.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, Repository } from 'typeorm';
+import { LessThan, Raw, Repository } from 'typeorm';
 import { CategoryOutput, CategoryInput } from './dtos/category.dto';
+import { Interval, Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class RestaurantService {
@@ -146,6 +147,9 @@ export class RestaurantService {
       }
       const restaurants = await this.restaurants.find({
         where: { category },
+        order: {
+          isPromoted: 'DESC',
+        },
         take: 25,
         skip: (page - 1) * 25,
       });
@@ -162,6 +166,9 @@ export class RestaurantService {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         skip: (page - 1) * 25,
         take: 25,
+        order: {
+          isPromoted: 'DESC',
+        },
       });
       return {
         ok: true,
@@ -280,5 +287,22 @@ export class RestaurantService {
       console.log(error);
       return { ok: false, error: 'Could not delete.' };
     }
+  }
+
+  @Cron('0 0 0 * * *')
+  async checkPromotedRestaurants() {
+    const restaurants = await this.restaurants.find({
+      isPromoted: true,
+      promotedUntil: LessThan(new Date()),
+    });
+    console.log(restaurants);
+
+    restaurants.forEach((restaurant: Restaurant) => {
+      try {
+        restaurant.isPromoted = false;
+        restaurant.promotedUntil = null;
+        this.restaurants.save(restaurant);
+      } catch {}
+    });
   }
 }
