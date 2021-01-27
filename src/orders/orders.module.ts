@@ -1,3 +1,4 @@
+import { CommonModule } from './../common/common.module';
 import { Dish } from './../restaurants/entities/dish.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Restaurant } from './../restaurants/entities/restaurant.entity';
