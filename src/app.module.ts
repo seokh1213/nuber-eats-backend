@@ -54,10 +54,14 @@ import { ScheduleModule } from '@nestjs/schedule';
             database: process.env.DB_NAME,
           }),
 
-      synchronize: process.env.NODE_ENV !== 'prod',
-      ssl: { rejectUnauthorized: false },
+      synchronize: process.env.NODE_ENV !== 'production',
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
       logging:
-        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
+        process.env.NODE_ENV !== 'production' &&
+        process.env.NODE_ENV !== 'test',
       entities: [
         User,
         Verification,
