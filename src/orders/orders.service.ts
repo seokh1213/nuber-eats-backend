@@ -55,14 +55,14 @@ export class OrderService {
 
         let dishFinalPrice = dish.price;
         for (const itemOption of item.options) {
-          const dishOption = dish.options.find(
+          const dishOption = dish.options?.find(
             (dishOption) => dishOption.name === itemOption.name,
           );
           if (dishOption) {
             if (dishOption.extra) {
               dishFinalPrice += dishOption.extra;
             } else {
-              const dishOptionChoice = dishOption.choices.find(
+              const dishOptionChoice = dishOption.choices?.find(
                 (optionChoice) => optionChoice.name === itemOption.choice,
               );
               if (dishOptionChoice) {
@@ -94,8 +94,9 @@ export class OrderService {
         pendingOrders: { order, ownerId: restaurant.ownerId },
       });
 
-      return { ok: true };
-    } catch {
+      return { ok: true, orderId: order.id };
+    } catch (e) {
+      console.log(e);
       return { ok: false, error: 'Could not create an order.' };
     }
   }
@@ -199,6 +200,7 @@ export class OrderService {
 
       if (user.role === UserRole.Owner) {
         if (status === OrderStatus.Cooked) {
+          console.log(newOrder, status);
           await this.pubsub.publish(NEW_COOKED_ORDER, {
             cookedOrders: newOrder,
           });

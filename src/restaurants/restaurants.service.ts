@@ -1,3 +1,11 @@
+import {
+  MyRestaurantOutput,
+  MyRestaurantInput,
+} from './dtos/my-restaurant.dto';
+import {
+  MyRestaurantsOutput,
+  MyRestaurantsInput,
+} from './dtos/my-restaurants.dto';
 import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
 import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import { Dish } from './entities/dish.entity';
@@ -54,7 +62,7 @@ export class RestaurantService {
 
       newRestaurant.category = category;
       await this.restaurants.save(newRestaurant);
-      return { ok: true };
+      return { ok: true, restaurantId: newRestaurant.id };
     } catch (error) {
       console.log(error);
       return { ok: false, error: 'Could not create restaurant' };
@@ -150,12 +158,18 @@ export class RestaurantService {
         order: {
           isPromoted: 'DESC',
         },
-        take: 25,
-        skip: (page - 1) * 25,
+        take: 3,
+        skip: (page - 1) * 3,
       });
       category.restaurants = restaurants;
       const totalResults = await this.countRestaurants(category);
-      return { ok: true, category, totalPages: totalResults / 25 };
+      return {
+        ok: true,
+        category,
+        totalPages: Math.ceil(totalResults / 3),
+        restaurants,
+        totalResults,
+      };
     } catch (error) {
       return { ok: false, error: 'Could not load category' };
     }
@@ -164,8 +178,8 @@ export class RestaurantService {
   async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 3,
+        take: 3,
         order: {
           isPromoted: 'DESC',
         },
@@ -173,7 +187,7 @@ export class RestaurantService {
       return {
         ok: true,
         results: restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 3),
         totalResults,
       };
     } catch (error) {
@@ -206,14 +220,14 @@ export class RestaurantService {
         where: {
           name: Raw((name) => `${name} ILIKE '%${query}%'`),
         },
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 3,
+        take: 3,
       });
       return {
         ok: true,
         restaurants,
         totalResults,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 3),
       };
     } catch {
       return { ok: false, error: 'Could not load restaurants' };
@@ -304,5 +318,58 @@ export class RestaurantService {
         this.restaurants.save(restaurant);
       } catch {}
     });
+  }
+
+  async myRestaurants(
+    owner: User,
+    { page }: MyRestaurantsInput,
+  ): Promise<MyRestaurantsOutput> {
+    try {
+      const [restaurants, totalResults] = await this.restaurants.findAndCount({
+        where: {
+          owner,
+        },
+        skip: (page - 1) * 3,
+        take: 3,
+      });
+      if (!restaurants) {
+        return {
+          ok: false,
+          error: "You don't have any restaurants",
+        };
+      }
+      return {
+        ok: true,
+        restaurants,
+        totalResults,
+        totalPages: Math.ceil(totalResults / 3),
+      };
+    } catch {
+      return { ok: false, error: 'Could not get your restaurants' };
+    }
+  }
+
+  async myRestaurant(
+    owner: User,
+    { restaurantId }: MyRestaurantInput,
+  ): Promise<MyRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        {
+          owner,
+          id: restaurantId,
+        },
+        {
+          relations: ['menu', 'orders'],
+        },
+      );
+      if (!restaurant) {
+        return { ok: false, error: 'This restaurant is not yours.' };
+      }
+
+      return { ok: true, restaurant };
+    } catch {
+      return { ok: false, error: 'Could not get restaurant' };
+    }
   }
 }

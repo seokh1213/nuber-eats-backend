@@ -1,3 +1,11 @@
+import {
+  MyRestaurantInput,
+  MyRestaurantOutput,
+} from './dtos/my-restaurant.dto';
+import {
+  MyRestaurantsOutput,
+  MyRestaurantsInput,
+} from './dtos/my-restaurants.dto';
 import { DeleteDishOutput, DeleteDishInput } from './dtos/delete-dish.dto';
 import { EditDishOutput, EditDishInput } from './dtos/edit-dish.dto';
 import { CreateDishOutput, CreateDishInput } from './dtos/create-dish.dto';
@@ -10,7 +18,6 @@ import { RestaurantOutput, RestaurantInput } from './dtos/restaurant.dto';
 import { RestaurantsOutput, RestaurantsInput } from './dtos/restaurants.dto';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import {
   DeleteRestaurantInput,
@@ -20,7 +27,7 @@ import {
   EditRestaurantOutput,
   EditRestaurantInput,
 } from './dtos/edit-restaurant.dto';
-import { User, UserRole } from 'src/users/entities/user.entity';
+import { User } from 'src/users/entities/user.entity';
 import { RestaurantService } from './restaurants.service';
 import {
   CreateRestaurantInput,
@@ -98,6 +105,24 @@ export class RestaurantResolver {
       searchRestaurantInput,
     );
   }
+
+  @Query((returns) => MyRestaurantsOutput)
+  @Role(['Owner'])
+  myRestaurants(
+    @AuthUser() owner: User,
+    @Args('input') myRestaurantsInput: MyRestaurantsInput,
+  ): Promise<MyRestaurantsOutput> {
+    return this.restaurantService.myRestaurants(owner, myRestaurantsInput);
+  }
+
+  @Query((returns) => MyRestaurantOutput)
+  @Role(['Owner'])
+  myRestaurant(
+    @AuthUser() owner: User,
+    @Args('input') myRestaurantInput: MyRestaurantInput,
+  ): Promise<MyRestaurantOutput> {
+    return this.restaurantService.myRestaurant(owner, myRestaurantInput);
+  }
 }
 
 @Resolver((of) => Category)
@@ -115,7 +140,9 @@ export class CateogryResolver {
   }
 
   @Query((type) => CategoryOutput)
-  category(@Args() categoryInput: CategoryInput): Promise<CategoryOutput> {
+  category(
+    @Args('input') categoryInput: CategoryInput,
+  ): Promise<CategoryOutput> {
     return this.restaurantService.findCategoryBySlug(categoryInput);
   }
 }

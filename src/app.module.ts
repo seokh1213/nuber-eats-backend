@@ -1,3 +1,4 @@
+import { FilesModule } from './files/files.module';
 import { Payment } from './payments/entities/payment.enity';
 import { CommonModule } from './common/common.module';
 import { OrderItem } from './orders/entities/order-item.entity';
@@ -20,6 +21,8 @@ import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import * as Joi from 'joi';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -85,6 +88,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     OrdersModule,
     CommonModule,
     PaymentsModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
